@@ -62,13 +62,6 @@ openApiGenerate {
     outputDir.set("$buildDir/generated")
     apiPackage.set("org.thejavaengineer.swagger.api")
     modelPackage.set("org.thejavaengineer.swagger.api.model")
-    /*configOptions.set([
-            useTags       : true.toString(),
-            dateLibrary   : "java8-datetime",
-            configPackage : "org.thejavaengineer.swagger.api.model",
-            interfaceOnly : true.toString(),
-            useSpringBoot3: true.toString()
-    ])*/
     generateAliasAsModel = true
 
     configOptions = [
