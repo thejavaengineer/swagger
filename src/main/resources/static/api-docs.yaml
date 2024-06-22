@@ -1,0 +1,142 @@
+openapi: 3.0.1
+info:
+  title: Library API
+  description: API for managing a library's books.
+  version: 1.0.0
+servers:
+  - url: /api
+tags:
+  - name: books
+    description: the books API
+paths:
+  /books:
+    post:
+      summary: Add a new book
+      tags:
+        - books
+      operationId: addBook
+      requestBody:
+        description: Book to add
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Book'
+      responses:
+        '201':
+          description: Book created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+        '400':
+          description: Bad Request
+        '500':
+          description: Internal Server Error
+    get:
+      summary: Get all books
+      tags:
+        - books
+      operationId: findAllBooks
+      responses:
+        '200':
+          description: List of books
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Book'
+        '400':
+          description: Bad Request
+        '500':
+          description: Internal Server Error
+  /books/genre/{genre}:
+    get:
+      summary: Get books by genre
+      tags:
+        - books
+      operationId: findBookByGenre
+      parameters:
+        - name: genre
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of books by genre
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Book'
+        '400':
+          description: Bad Request
+        '404':
+          description: Genre not found
+        '500':
+          description: Internal Server Error
+  /books/available:
+    get:
+      summary: Get all available books
+      tags:
+        - books
+      operationId: findAllAvailableBooks
+      responses:
+        '200':
+          description: List of available books
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Book'
+        '400':
+          description: Bad Request
+        '500':
+          description: Internal Server Error
+  /books/{id}:
+    delete:
+      summary: Delete a book
+      tags:
+        - books
+      operationId: deleteBook
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Book deleted
+        '400':
+          description: Bad Request
+        '404':
+          description: Book not found
+        '500':
+          description: Internal Server Error
+
+components:
+  schemas:
+    Book:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        title:
+          type: string
+        author:
+          type: string
+        genre:
+          type: string
+        available:
+          type: boolean
+      required:
+        - title
+        - author
+        - genre

@@ -1,0 +1,101 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.3.1'
+    id 'io.spring.dependency-management' version '1.1.5'
+    id "org.openapi.generator" version "6.6.0"
+}
+
+group = 'com.thejavaengineer'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        url "https://plugins.gradle.org/m2/"
+    }
+}
+
+dependencies {
+    implementation('org.springframework.boot:spring-boot-starter-web') {
+        exclude group: 'org.slf4j', module: 'slf4j-simple'
+    }
+    // Include necessary logging dependencies
+    implementation 'org.springframework.boot:spring-boot-starter-logging'
+    implementation 'ch.qos.logback:logback-classic'
+
+    //Create open-api doc
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0'
+    implementation 'io.swagger.parser.v3:swagger-parser:2.1.21'
+    //openapi-generator
+    implementation "org.openapitools:openapi-generator-gradle-plugin:6.6.0"
+    implementation 'io.swagger:swagger-annotations:1.6.11'
+    implementation 'org.openapitools:jackson-databind-nullable:0.2.6'
+    implementation 'org.jetbrains:annotations:24.0.0'
+    implementation 'javax.xml.bind:jaxb-api:2.3.1'
+    implementation 'org.glassfish.jaxb:jaxb-runtime:2.3.5'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src/main/java', "${buildDir}/generated/src/main/java/"]
+        }
+    }
+}
+
+openApiGenerate {
+    generatorName.set("spring")
+    inputSpec.set("$rootDir/src/main/resources/static/api-docs.yaml")
+    outputDir.set("$buildDir/generated")
+    apiPackage.set("org.thejavaengineer.swagger.api")
+    modelPackage.set("org.thejavaengineer.swagger.api.model")
+    /*configOptions.set([
+            useTags       : true.toString(),
+            dateLibrary   : "java8-datetime",
+            configPackage : "org.thejavaengineer.swagger.api.model",
+            interfaceOnly : true.toString(),
+            useSpringBoot3: true.toString()
+    ])*/
+    generateAliasAsModel = true
+
+    configOptions = [
+            hideGenerationTimeStamp                : "true",
+            dateLibrary                            : "java8",
+            useSpringBoot3                         : "true",
+            interfaceOnly                          : "true",
+            skipDefaultInterface                   : "true",
+            useBeanValidation                      : "true",
+            useTag                                 : "true",
+            implicitHeaders                        : "true"
+    ]
+}
+
+sourceSets {
+    main {
+        output.dir("$buildDir/generated/src/main/java", builtBy: 'openApiGenerate')
+        java.srcDir "$buildDir/generated/src/main/java"
+    }
+}
+
+clean {
+    delete "$buildDir/generated" // Clean generated sources
+}
+
+compileJava {
+    dependsOn tasks.openApiGenerate
+    options.compilerArgs << '-parameters'
+    options.encoding = 'UTF-8'
+}
